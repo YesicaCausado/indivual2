@@ -5,7 +5,8 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
 
 import {
@@ -18,43 +19,40 @@ import {
 
 export default function Logout() {
 
-  const cerrarSesion = () => {
+  const cerrarSesion = async () => {
+    try {
+      // 🔥 CERRAR SESIÓN
+      await signOut(auth);
+      console.log('Sesión cerrada exitosamente');
+    } catch (error) {
+      console.log('Error al cerrar sesión:', error);
+      Alert.alert('Error', 'No se pudo cerrar la sesión');
+    }
+  };
 
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Deseas salir?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-
-        {
-          text: 'Salir',
-
-          style: 'destructive',
-
-          onPress: async () => {
-
-            try {
-
-              // 🔥 CERRAR SESIÓN
-
-              await signOut(auth);
-
-              console.log('Sesión cerrada');
-
-            } catch (error) {
-
-              console.log(error);
-
-            }
-
+  const confirmarCierre = () => {
+    if (Platform.OS === 'web') {
+      const confirm = window.confirm('¿Deseas salir?');
+      if (confirm) {
+        cerrarSesion();
+      }
+    } else {
+      Alert.alert(
+        'Cerrar sesión',
+        '¿Deseas salir?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
           },
-        },
-      ]
-    );
-
+          {
+            text: 'Salir',
+            style: 'destructive',
+            onPress: cerrarSesion,
+          },
+        ]
+      );
+    }
   };
 
   return (
@@ -71,7 +69,7 @@ export default function Logout() {
 
       <TouchableOpacity
         style={styles.boton}
-        onPress={cerrarSesion}
+        onPress={confirmarCierre}
       >
 
         <Text style={styles.textoBoton}>

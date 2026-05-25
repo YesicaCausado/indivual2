@@ -20,6 +20,7 @@ import {
 import {
   auth
 } from './firebase/firebaseConfig';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // COMPONENTES
 
@@ -99,9 +100,22 @@ export default function App() {
           // =================
 
           <Tab.Navigator
-            screenOptions={{
+            screenOptions={({ route }) => ({
               headerShown: false,
-            }}
+              tabBarIcon: ({ color, size }) => {
+                let iconName;
+
+                if (route.name === 'Inicio') {
+                  iconName = 'home-outline';
+                } else if (route.name === 'Disney') {
+                  iconName = 'movie-open-outline';
+                } else if (route.name === 'Logout') {
+                  iconName = 'logout';
+                }
+
+                return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+              },
+            })}
           >
 
             <Tab.Screen
@@ -128,9 +142,18 @@ export default function App() {
           // =================
 
           <Tab.Navigator
-            screenOptions={{
+            screenOptions={({ route }) => ({
               headerShown: false,
-            }}
+              tabBarIcon: ({ color, size }) => {
+                let iconName;
+                if (route.name === 'Login') {
+                  iconName = 'login';
+                } else if (route.name === 'Registro') {
+                  iconName = 'account-plus-outline';
+                }
+                return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+              },
+            })}
           >
 
             <Tab.Screen
