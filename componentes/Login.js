@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert, Platform } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
@@ -10,10 +10,43 @@ export default function Login() {
   const navigation = useNavigation();
 
   const handleLogin = async () => {
+    if (!correo || !contrasena) {
+      const msg = 'Por favor ingresa tu correo y contraseña.';
+      if (Platform.OS === 'web') {
+        window.alert(msg);
+      } else {
+        Alert.alert('Error', msg);
+      }
+      return;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, correo, contrasena);
     } catch (error) {
-      Alert.alert('Error al iniciar sesión', error.message);
+      let mensajeError = 'Ocurrió un error inesperado. Inténtalo de nuevo.';
+      
+      switch (error.code) {
+        case 'auth/invalid-email':
+          mensajeError = 'El formato del correo electrónico no es válido.';
+          break;
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          mensajeError = 'Correo o contraseña incorrectos.';
+          break;
+        case 'auth/user-disabled':
+          mensajeError = 'La cuenta de usuario ha sido deshabilitada.';
+          break;
+        case 'auth/network-request-failed':
+          mensajeError = 'Error de conexión. Verifica tu internet.';
+          break;
+      }
+
+      if (Platform.OS === 'web') {
+        window.alert(mensajeError);
+      } else {
+        Alert.alert('Error al iniciar sesión', mensajeError);
+      }
     }
   };
 

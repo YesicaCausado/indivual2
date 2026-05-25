@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert, Platform } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -14,6 +14,16 @@ export default function Registro() {
   const navigation = useNavigation();
 
   const handleRegistro = async () => {
+    if (!nombre || !correo || !contrasena || !fecha || !telefono) {
+      const msg = 'Por favor completa todos los campos.';
+      if (Platform.OS === 'web') {
+        window.alert(msg);
+      } else {
+        Alert.alert('Error', msg);
+      }
+      return;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, correo, contrasena);
       const user = userCredential.user;
@@ -29,10 +39,35 @@ export default function Registro() {
         vistos: 0,
       });
 
-      Alert.alert('Éxito', 'Usuario registrado correctamente');
+      if (Platform.OS === 'web') {
+        window.alert('Usuario registrado correctamente');
+      } else {
+        Alert.alert('Éxito', 'Usuario registrado correctamente');
+      }
       navigation.navigate('Login');
     } catch (error) {
-      Alert.alert('Error al registrarse', error.message);
+      let mensajeError = 'Ocurrió un error al registrarse. Inténtalo de nuevo.';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          mensajeError = 'Este correo ya está en uso por otra cuenta.';
+          break;
+        case 'auth/invalid-email':
+          mensajeError = 'El formato del correo electrónico no es válido.';
+          break;
+        case 'auth/weak-password':
+          mensajeError = 'La contraseña debe tener al menos 6 caracteres.';
+          break;
+        case 'auth/network-request-failed':
+          mensajeError = 'Error de conexión. Verifica tu internet.';
+          break;
+      }
+
+      if (Platform.OS === 'web') {
+        window.alert(mensajeError);
+      } else {
+        Alert.alert('Error al registrarse', mensajeError);
+      }
     }
   };
 
