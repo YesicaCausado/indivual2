@@ -17,7 +17,12 @@
       }
     },
     "web": {
-      "favicon": "./assets/image.png"
+      "favicon": "./assets/image.png",
+      "name": "Indivual 2",
+      "shortName": "Indivual2",
+      "themeColor": "#ffffff",
+      "backgroundColor": "#ffffff",
+      "display": "standalone"
     },
     "extra": {
       "eas": {
